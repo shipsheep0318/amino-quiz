@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Amino Acid Quiz</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f5f5f5;
+}
+
+h1{
+margin-top:20px;
+}
+
+#grid{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:15px;
+max-width:1200px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:10px;
+border-radius:10px;
+box-shadow:0 0 5px rgba(0,0,0,0.2);
+}
+
+img{
+width:120px;
+height:120px;
+object-fit:contain;
+}
+
+input,select{
+width:90%;
+margin:3px;
+padding:5px;
+}
+
+.correct{
+background:#b6ffb6;
+}
+
+.wrong{
+background:#ffb6b6;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+margin:15px;
+}
+
+#ranking{
+margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Amino Acid Quiz</h1>
+
+<div>Time: <span id="time">0</span> sec</div>
+
+<div id="grid"></div>
+
+<button onclick="submitQuiz()">Submit</button>
+<button onclick="restart()">Restart</button>
+
+<h2 id="score"></h2>
+
+<div id="ranking">
+<h2>🏆 Top 3</h2>
+<div id="rankList"></div>
+</div>
+
+<script>
+
+const aminoAcids=[
+{name:"Alanine",three:"Ala",one:"A",property:"nonpolar",img:"images/alanine.png"},
+{name:"Arginine",three:"Arg",one:"R",property:"positive",img:"images/arginine.png"},
+{name:"Asparagine",three:"Asn",one:"N",property:"polar",img:"images/asparagine.png"},
+{name:"Aspartic acid",three:"Asp",one:"D",property:"negative",img:"images/aspartic_acid.png"},
+{name:"Cysteine",three:"Cys",one:"C",property:"polar",img:"images/cysteine.png"},
+{name:"Glutamine",three:"Gln",one:"Q",property:"polar",img:"images/glutamine.png"},
+{name:"Glutamic acid",three:"Glu",one:"E",property:"negative",img:"images/glutamic_acid.png"},
+{name:"Glycine",three:"Gly",one:"G",property:"nonpolar",img:"images/glycine.png"},
+{name:"Histidine",three:"His",one:"H",property:"positive",img:"images/histidine.png"},
+{name:"Isoleucine",three:"Ile",one:"I",property:"nonpolar",img:"images/isoleucine.png"},
+{name:"Leucine",three:"Leu",one:"L",property:"nonpolar",img:"images/leucine.png"},
+{name:"Lysine",three:"Lys",one:"K",property:"positive",img:"images/lysine.png"},
+{name:"Methionine",three:"Met",one:"M",property:"nonpolar",img:"images/methionine.png"},
+{name:"Phenylalanine",three:"Phe",one:"F",property:"nonpolar",img:"images/phenylalanine.png"},
+{name:"Proline",three:"Pro",one:"P",property:"nonpolar",img:"images/proline.png"},
+{name:"Serine",three:"Ser",one:"S",property:"polar",img:"images/serine.png"},
+{name:"Threonine",three:"Thr",one:"T",property:"polar",img:"images/threonine.png"},
+{name:"Tryptophan",three:"Trp",one:"W",property:"nonpolar",img:"images/tryptophan.png"},
+{name:"Tyrosine",three:"Tyr",one:"Y",property:"polar",img:"images/tyrosine.png"},
+{name:"Valine",three:"Val",one:"V",property:"nonpolar",img:"images/valine.png"}
+]
+
+let shuffled=[...aminoAcids].sort(()=>Math.random()-0.5)
+
+let startTime=Date.now()
+
+let timer=setInterval(()=>{
+let t=Math.floor((Date.now()-startTime)/1000)
+document.getElementById("time").innerText=t
+},1000)
+
+const grid=document.getElementById("grid")
+
+function createQuiz(){
+
+grid.innerHTML=""
+
+shuffled.forEach((aa,i)=>{
+
+let div=document.createElement("div")
+div.className="card"
+
+div.innerHTML=`
+
+<img src="${aa.img}">
+
+<input placeholder="Name" id="name${i}">
+<input placeholder="3-letter" id="three${i}">
+<input placeholder="1-letter" id="one${i}">
+
+<select id="prop${i}">
+<option value="">property</option>
+<option>nonpolar</option>
+<option>polar</option>
+<option>positive</option>
+<option>negative</option>
+</select>
+
+`
+
+grid.appendChild(div)
+
+})
+
+}
+
+createQuiz()
+
+function submitQuiz(){
+
+let score=0
+
+shuffled.forEach((aa,i)=>{
+
+let name=document.getElementById("name"+i)
+let three=document.getElementById("three"+i)
+let one=document.getElementById("one"+i)
+let prop=document.getElementById("prop"+i)
+
+let correct=true
+
+if(name.value.trim().toLowerCase()!=aa.name.toLowerCase()) correct=false
+if(three.value.trim().toLowerCase()!=aa.three.toLowerCase()) correct=false
+if(one.value.trim().toLowerCase()!=aa.one.toLowerCase()) correct=false
+if(prop.value.toLowerCase()!=aa.property.toLowerCase()) correct=false
+
+if(correct){
+score++
+name.classList.add("correct")
+}else{
+name.classList.add("wrong")
+}
+
+})
+
+document.getElementById("score").innerText="Score: "+score+" / 20"
+
+if(score==20){
+
+clearInterval(timer)
+
+let time=Math.floor((Date.now()-startTime)/1000)
+
+updateRanking(time)
+
+}
+
+}
+
+function updateRanking(time){
+
+let ranks=JSON.parse(localStorage.getItem("ranking")||"[]")
+
+if(ranks.length<3 || time<ranks[ranks.length-1].time){
+
+let name=prompt("🏆 Top 3! Enter your name")
+
+ranks.push({name,time})
+
+ranks.sort((a,b)=>a.time-b.time)
+
+ranks=ranks.slice(0,3)
+
+localStorage.setItem("ranking",JSON.stringify(ranks))
+
+}
+
+showRanking()
+
+}
+
+function showRanking(){
+
+let ranks=JSON.parse(localStorage.getItem("ranking")||"[]")
+
+let html=""
+
+ranks.forEach((r,i)=>{
+
+html+=`<div>${i+1}. ${r.name} - ${r.time}s</div>`
+
+})
+
+document.getElementById("rankList").innerHTML=html
+
+}
+
+showRanking()
+
+function restart(){
+
+location.reload()
+
+}
+
+</script>
+
+</body>
+</html>
