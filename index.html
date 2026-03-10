@@ -24,15 +24,11 @@ gap:15px;
 max-width:1200px;
 margin:auto;
 }
-@media (max-width:700px){
+
+@media (max-width:900px){
 
 #grid{
 grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
-.card{
-padding:6px;
 }
 
 img{
@@ -61,18 +57,21 @@ margin:3px;
 padding:5px;
 }
 
-.correct{
-background:#b6ffb6;
-}
-
-.wrong{
-background:#ffb6b6;
-}
-
 button{
 padding:10px 20px;
 font-size:16px;
 margin:15px;
+}
+
+.strike{
+text-decoration:line-through;
+color:red;
+}
+
+.answer{
+color:blue;
+font-weight:bold;
+margin-left:5px;
 }
 
 #ranking{
@@ -184,17 +183,47 @@ let prop=document.getElementById("prop"+i)
 
 let correct=true
 
-if(name.value.trim().toLowerCase()!=aa.name.toLowerCase()) correct=false
-if(three.value.trim().toLowerCase()!=aa.three.toLowerCase()) correct=false
-if(one.value.trim().toLowerCase()!=aa.one.toLowerCase()) correct=false
-if(prop.value.toLowerCase()!=aa.property.toLowerCase()) correct=false
-
-if(correct){
-score++
-name.classList.add("correct")
+if(name.value.trim().toLowerCase()!=aa.name.toLowerCase()){
+correct=false
+let user=name.value.trim()
+if(user!=""){
+name.outerHTML=`<div><span class="strike">${user}</span> <span class="answer">${aa.name}</span></div>`
 }else{
-name.classList.add("wrong")
+name.outerHTML=`<div><span class="answer">${aa.name}</span></div>`
 }
+}
+
+if(three.value.trim().toLowerCase()!=aa.three.toLowerCase()){
+correct=false
+let user=three.value.trim()
+if(user!=""){
+three.outerHTML=`<div><span class="strike">${user}</span> <span class="answer">${aa.three}</span></div>`
+}else{
+three.outerHTML=`<div><span class="answer">${aa.three}</span></div>`
+}
+}
+
+if(one.value.trim().toLowerCase()!=aa.one.toLowerCase()){
+correct=false
+let user=one.value.trim()
+if(user!=""){
+one.outerHTML=`<div><span class="strike">${user}</span> <span class="answer">${aa.one}</span></div>`
+}else{
+one.outerHTML=`<div><span class="answer">${aa.one}</span></div>`
+}
+}
+
+if(prop.value.toLowerCase()!=aa.property.toLowerCase()){
+correct=false
+let user=prop.value
+if(user!=""){
+prop.outerHTML=`<div><span class="strike">${user}</span> <span class="answer">${aa.property}</span></div>`
+}else{
+prop.outerHTML=`<div><span class="answer">${aa.property}</span></div>`
+}
+}
+
+if(correct) score++
 
 })
 
@@ -241,9 +270,7 @@ let ranks=JSON.parse(localStorage.getItem("ranking")||"[]")
 let html=""
 
 ranks.forEach((r,i)=>{
-
 html+=`<div>${i+1}. ${r.name} - ${r.time}s</div>`
-
 })
 
 document.getElementById("rankList").innerHTML=html
@@ -253,14 +280,10 @@ document.getElementById("rankList").innerHTML=html
 showRanking()
 
 function restart(){
-
 location.reload()
-
 }
 
 </script>
 
 </body>
-
 </html>
-
